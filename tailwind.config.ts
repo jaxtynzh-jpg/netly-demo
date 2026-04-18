@@ -11,6 +11,14 @@ const config: Config = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        panel: "var(--panel)",
+        border: "var(--border)",
+        muted: "var(--muted)",
+        accent: "var(--accent)",
+        "accent-strong": "var(--accent-strong)",
+      },
+      boxShadow: {
+        lift: "0 24px 80px -32px rgba(15, 23, 42, 0.24)",
       },
     },
   },
