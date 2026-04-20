@@ -1202,7 +1202,231 @@ const eventSeeds: EventSeed[] = [
   },
 ];
 
-export const events: Event[] = eventSeeds
+type EventSeedVariant = {
+  idSuffix: string;
+  nameSuffix: string;
+  dayOffset: number;
+  type: EventType;
+  organizer: {
+    nameSuffix: string;
+    type: OrganizerType;
+    credibilityLabel: string;
+    credibilityTier: 1 | 2 | 3;
+    employerSignals: string[];
+  };
+  roiDelta: number;
+  tags: string[];
+  summary: string;
+  whyItMatters: string;
+};
+
+const eventSeedVariants: EventSeedVariant[] = [
+  {
+    idSuffix: "employer-briefing",
+    nameSuffix: "Employer Briefing",
+    dayOffset: 8,
+    type: "Info Session",
+    organizer: {
+      nameSuffix: "Employer Briefing Desk",
+      type: "Employer",
+      credibilityLabel: "Fortune 500-backed",
+      credibilityTier: 3,
+      employerSignals: ["Fortune 500", "Employer booths", "Structured format"],
+    },
+    roiDelta: 0,
+    tags: ["Employer booths", "Structured format", "Student-friendly"],
+    summary: "A structured employer-backed version of this room, designed to make first conversations easier for students.",
+    whyItMatters: "This variant gives users a lower-friction entry point when they want credible employer exposure without needing advanced networking confidence.",
+  },
+  {
+    idSuffix: "campus-clinic",
+    nameSuffix: "Campus Access Clinic",
+    dayOffset: 15,
+    type: "Info Session",
+    organizer: {
+      nameSuffix: "Campus Careers Clinic",
+      type: "University",
+      credibilityLabel: "Top university-backed",
+      credibilityTier: 3,
+      employerSignals: ["Top university", "Employer booths", "Student-friendly"],
+    },
+    roiDelta: -1,
+    tags: ["Employer booths", "Top university", "Student-friendly"],
+    summary: "A campus-backed version with clearer introductions, safer conversation structure, and visible student support.",
+    whyItMatters: "It is useful for students who need a credible room but do not want to start with an unstructured mixer.",
+  },
+  {
+    idSuffix: "alumni-panel",
+    nameSuffix: "Alumni Signal Panel",
+    dayOffset: 22,
+    type: "Panel",
+    organizer: {
+      nameSuffix: "Alumni Circle",
+      type: "Community",
+      credibilityLabel: "Alumni-led community",
+      credibilityTier: 2,
+      employerSignals: ["High alumni density", "Warm intros", "Local network"],
+    },
+    roiDelta: 0,
+    tags: ["High alumni density", "Warm intros", "Targeted audience"],
+    summary: "An alumni-led panel where the strongest value comes from warm context and practical role advice.",
+    whyItMatters: "This gives students a moderate-communication room where shared background can turn a basic chat into a follow-up.",
+  },
+  {
+    idSuffix: "association-forum",
+    nameSuffix: "Industry Association Forum",
+    dayOffset: 29,
+    type: "Conference",
+    organizer: {
+      nameSuffix: "Industry Council Forum",
+      type: "Association",
+      credibilityLabel: "Major industry association",
+      credibilityTier: 3,
+      employerSignals: ["Major association", "Hiring pipeline", "Targeted audience"],
+    },
+    roiDelta: 1,
+    tags: ["Major association", "Targeted audience", "Hiring pipeline"],
+    summary: "A professional-body version of the room with stronger audience curation and clearer industry signal.",
+    whyItMatters: "It helps users separate broad networking noise from rooms that attract people with actual market context.",
+  },
+  {
+    idSuffix: "operator-roundtable",
+    nameSuffix: "Operator Roundtable",
+    dayOffset: 36,
+    type: "Meetup",
+    organizer: {
+      nameSuffix: "Operator Network",
+      type: "Employer",
+      credibilityLabel: "Fortune 500-backed",
+      credibilityTier: 3,
+      employerSignals: ["Fortune 500", "Operator-heavy", "Hiring managers"],
+    },
+    roiDelta: 1,
+    tags: ["Operator-heavy", "Easy referral", "Hiring pipeline"],
+    summary: "A practitioner-heavy roundtable where useful conversations depend on asking specific, role-aware questions.",
+    whyItMatters: "This is a higher-signal room for students who can steer conversations toward team needs and referral paths.",
+  },
+  {
+    idSuffix: "recruiter-lab",
+    nameSuffix: "Recruiter Visibility Lab",
+    dayOffset: 43,
+    type: "Meetup",
+    organizer: {
+      nameSuffix: "Recruiter Lab",
+      type: "Association",
+      credibilityLabel: "Major industry association",
+      credibilityTier: 3,
+      employerSignals: ["Recruiter-visible", "Hiring managers", "Targeted audience"],
+    },
+    roiDelta: 1,
+    tags: ["Recruiter-visible", "Operator-heavy", "Targeted audience"],
+    summary: "A recruiter-visible practitioner room where the user needs enough confidence to move beyond surface introductions.",
+    whyItMatters: "It raises the upside of networking, but only if the student can ask focused questions and follow up quickly.",
+  },
+  {
+    idSuffix: "founder-circle",
+    nameSuffix: "Founder Access Circle",
+    dayOffset: 50,
+    type: "Meetup",
+    organizer: {
+      nameSuffix: "Founder Circle",
+      type: "Startup",
+      credibilityLabel: "Startup / founder-led",
+      credibilityTier: 2,
+      employerSignals: ["Founder access", "Startup operators", "Warm intros"],
+    },
+    roiDelta: -1,
+    tags: ["Founder access", "Operator-heavy", "Warm intros"],
+    summary: "A founder-heavy version where outcomes depend on fast trust-building and comfort with ambiguity.",
+    whyItMatters: "This is best for users who can turn an informal founder chat into a specific next step without much structure.",
+  },
+  {
+    idSuffix: "pitch-showcase",
+    nameSuffix: "Pitch Showcase",
+    dayOffset: 57,
+    type: "Pitch Night",
+    organizer: {
+      nameSuffix: "Pitch Showcase",
+      type: "Startup",
+      credibilityLabel: "Startup / founder-led",
+      credibilityTier: 2,
+      employerSignals: ["Founder access", "Investor-heavy", "Startup operators"],
+    },
+    roiDelta: -1,
+    tags: ["Founder access", "Investor-heavy", "Pitch format"],
+    summary: "A high-energy pitch room with strong access but less predictable recruiting structure.",
+    whyItMatters: "It should be recommended only when the user has enough communication skill to navigate cold founder conversations.",
+  },
+  {
+    idSuffix: "community-salon",
+    nameSuffix: "Community Salon",
+    dayOffset: 64,
+    type: "Meetup",
+    organizer: {
+      nameSuffix: "Community Salon",
+      type: "Community",
+      credibilityLabel: "Alumni-led community",
+      credibilityTier: 2,
+      employerSignals: ["Local network", "Peer intros", "Community host"],
+    },
+    roiDelta: -1,
+    tags: ["Broad audience", "Local network", "Peer intros"],
+    summary: "A relationship-led community version that gives users more networking reps, but with weaker hiring certainty.",
+    whyItMatters: "This keeps lower-structure rooms visible in the demo while still letting Netly rank them against more credible options.",
+  },
+];
+
+function addDaysToEventDate(date: string, dayOffset: number) {
+  const match = date.match(/^(\d{4})-(\d{2})-(\d{2})T(.+)$/);
+
+  if (!match) {
+    return date;
+  }
+
+  const [, year, month, day, timeAndZone] = match;
+  const shiftedDate = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day) + dayOffset));
+  const shiftedYear = shiftedDate.getUTCFullYear();
+  const shiftedMonth = String(shiftedDate.getUTCMonth() + 1).padStart(2, "0");
+  const shiftedDay = String(shiftedDate.getUTCDate()).padStart(2, "0");
+
+  return `${shiftedYear}-${shiftedMonth}-${shiftedDay}T${timeAndZone}`;
+}
+
+function uniqueList(values: string[]) {
+  return Array.from(new Set(values));
+}
+
+function applyRoiDelta(score: Event["roiScore"], delta: number) {
+  return clampScore(score + delta);
+}
+
+function expandEventSeed(seed: EventSeed, seedIndex: number): EventSeed[] {
+  const generatedSeeds = eventSeedVariants.map((variant, variantIndex) => ({
+    ...seed,
+    id: `${seed.id}-${variant.idSuffix}`,
+    name: `${seed.name}: ${variant.nameSuffix}`,
+    date: addDaysToEventDate(seed.date, variant.dayOffset + (seedIndex % 4) + variantIndex),
+    location: `${seed.city} ${variant.nameSuffix}`,
+    organizer: makeOrganizer(
+      `${seed.organizer.name} ${variant.organizer.nameSuffix}`,
+      variant.organizer.type,
+      variant.organizer.credibilityLabel,
+      variant.organizer.credibilityTier,
+      uniqueList([...variant.organizer.employerSignals, ...seed.organizer.employerSignals]).slice(0, 5),
+    ),
+    type: variant.type,
+    roiScore: applyRoiDelta(seed.roiScore, variant.roiDelta),
+    tags: uniqueList([...variant.tags, ...seed.tags]).slice(0, 5),
+    summary: variant.summary,
+    whyItMatters: variant.whyItMatters,
+  }));
+
+  return [seed, ...generatedSeeds];
+}
+
+const expandedEventSeeds = eventSeeds.flatMap(expandEventSeed);
+
+export const events: Event[] = expandedEventSeeds
   .map((seed) => ({
     ...seed,
     communicationSkill: buildCommunicationRequirement(seed),
@@ -1375,37 +1599,15 @@ export function scoreEventAgainstProfile(event: Event, profile: ProfileInterpret
 }
 
 export function getRecommendedEvents(profile: ProfileInterpretation, limit = 3) {
-  const strictMatches = events.filter((event) => {
-    if (event.country !== profile.country) {
-      return false;
-    }
-
+  const strictMatches = filterEvents(events, profile).filter((event) => {
     if (profile.preferredCities.length > 1 && !profile.preferredCities.includes(event.city)) {
       return false;
     }
 
-    if (profile.city !== "All cities" && event.city !== profile.city) {
-      return false;
-    }
+    return true;
+  });
 
-    if (profile.industry !== "All industries" && !event.industry.includes(profile.industry)) {
-      return false;
-    }
-
-	    if (profile.role !== "All roles" && !event.roleRelevance.includes(profile.role)) {
-	      return false;
-	    }
-
-    if (!matchesCommunicationSkill(event, profile.communicationSkill)) {
-      return false;
-    }
-
-	    return true;
-	  });
-
-  const pool = strictMatches.length >= limit ? strictMatches : events.filter((event) => event.country === profile.country);
-
-  return [...pool]
+  return [...strictMatches]
     .sort((left, right) => scoreEventAgainstProfile(right, profile) - scoreEventAgainstProfile(left, profile))
     .slice(0, limit);
 }
