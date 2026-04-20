@@ -10,6 +10,7 @@ import { buildMockStrategy } from "@/data/strategy";
 import {
   careerStageOptions,
   cityOptionsByCountry,
+  communicationSkillOptions,
   countries,
   defaultFilterState,
   eventTypeOptions,
@@ -77,6 +78,7 @@ export function StrategyForm() {
         eventType: nextInterpretation.eventType,
         organizerCredibility: nextInterpretation.organizerCredibility,
         roiBand: nextInterpretation.roiBand,
+        communicationSkill: nextInterpretation.communicationSkill,
       });
     });
   }
@@ -102,6 +104,7 @@ export function StrategyForm() {
       eventType: manual.eventType,
       organizerCredibility: manual.organizerCredibility,
       roiBand: manual.roiBand,
+      communicationSkill: manual.communicationSkill,
     });
     setActiveInterpretation(manual);
   }
@@ -130,14 +133,14 @@ export function StrategyForm() {
           </p>
 
           <div className="mt-5 flex flex-wrap gap-2">
-                {examplePrompts.map((example) => (
-                  <button
-                    key={example.label}
-                    type="button"
-                    onClick={() => generateFromPrompt(example.prompt)}
-                    className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50"
-                  >
-                    {example.label}
+            {examplePrompts.map((example) => (
+              <button
+                key={example.label}
+                type="button"
+                onClick={() => generateFromPrompt(example.prompt)}
+                className="rounded-full border border-emerald-200 bg-white px-4 py-2 text-sm font-medium text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-50"
+              >
+                {example.label}
               </button>
             ))}
           </div>
@@ -246,9 +249,22 @@ export function StrategyForm() {
                 ))}
               </select>
             </label>
+
+            <label className="grid gap-2 text-sm font-medium text-slate-700">
+              Communication required
+              <select
+                value={filters.communicationSkill}
+                onChange={(event) => updateFilter("communicationSkill", event.target.value)}
+                className={selectClassName}
+              >
+                {communicationSkillOptions.map((option) => (
+                  <option key={option}>{option}</option>
+                ))}
+              </select>
+            </label>
           </div>
 
-              <textarea
+          <textarea
             value={promptText}
             onChange={(event) => setPromptText(event.target.value)}
             placeholder="Describe your own goals, background, and preferred market here."

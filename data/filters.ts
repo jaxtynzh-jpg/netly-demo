@@ -78,6 +78,14 @@ export const roiBandOptions = [
   "Low ROI",
 ] as const;
 
+export const communicationSkillOptions = [
+  "All communication levels",
+  "Low",
+  "Moderate",
+  "High",
+  "Advanced",
+] as const;
+
 export const employerPreferenceOptions = [
   "Open to all",
   "Big-name employers",
@@ -95,6 +103,7 @@ export type FilterState = {
   eventType: string;
   organizerCredibility: string;
   roiBand: string;
+  communicationSkill: string;
 };
 
 export type ProfileInterpretation = FilterState & {
@@ -114,5 +123,5 @@ export const defaultFilterState: FilterState = {
   eventType: "All event types",
   organizerCredibility: "All credibility levels",
   roiBand: "All ROI levels",
+  communicationSkill: "All communication levels",
 };
-

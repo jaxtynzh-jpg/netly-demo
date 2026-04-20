@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   careerStageOptions,
   cityOptionsByCountry,
+  communicationSkillOptions,
   countries,
   defaultFilterState,
   eventTypeOptions,
@@ -70,6 +71,7 @@ export function EventsExplorer() {
         eventType: nextInterpretation.eventType,
         organizerCredibility: nextInterpretation.organizerCredibility,
         roiBand: nextInterpretation.roiBand,
+        communicationSkill: nextInterpretation.communicationSkill,
       });
     });
   }
@@ -161,6 +163,7 @@ export function EventsExplorer() {
                     <Badge variant="neutral">{interpretation.industry}</Badge>
                     <Badge variant="neutral">{interpretation.role}</Badge>
                     <Badge variant="warm">{interpretation.organizerCredibility}</Badge>
+                    <Badge variant="info">{interpretation.communicationSkill}</Badge>
                   </div>
 
                   <div className="grid gap-3">
@@ -314,6 +317,19 @@ export function EventsExplorer() {
                   ))}
                 </select>
               </label>
+
+              <label className="grid gap-2 text-sm font-medium text-slate-700">
+                Communication required
+                <select
+                  value={filters.communicationSkill}
+                  onChange={(event) => updateFilter("communicationSkill", event.target.value)}
+                  className={selectClassName}
+                >
+                  {communicationSkillOptions.map((option) => (
+                    <option key={option}>{option}</option>
+                  ))}
+                </select>
+              </label>
             </div>
           </CardContent>
         </Card>
@@ -331,7 +347,8 @@ export function EventsExplorer() {
             <Badge variant="neutral">{filters.industry}</Badge>
             <Badge variant="neutral">{filters.role}</Badge>
             <Badge variant="warm">{filters.roiBand}</Badge>
-          </div>
+            <Badge variant="info">{filters.communicationSkill}</Badge>
+	          </div>
         </div>
 
         {visibleEvents.length ? (

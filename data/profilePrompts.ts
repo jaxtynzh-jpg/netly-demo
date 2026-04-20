@@ -76,6 +76,13 @@ const roleKeywordMap = [
   { value: "Founder Associate", keywords: ["founder associate", "startup operator"] },
 ] as const;
 
+const communicationKeywordMap = [
+  { value: "Low", keywords: ["low communication", "introvert", "structured", "beginner networking"] },
+  { value: "Moderate", keywords: ["moderate communication", "some networking", "comfortable talking"] },
+  { value: "High", keywords: ["high communication", "confident", "strong networking", "people skills"] },
+  { value: "Advanced", keywords: ["advanced communication", "founder", "investor", "pitch", "cold approach"] },
+] as const;
+
 function includesAny(text: string, keywords: readonly string[]) {
   return keywords.some((keyword) => text.includes(keyword));
 }
@@ -131,6 +138,11 @@ function getCareerStageFromPrompt(text: string) {
   }
 
   return "Fresh Grad";
+}
+
+function getCommunicationSkillFromPrompt(text: string) {
+  const match = communicationKeywordMap.find((entry) => includesAny(text, entry.keywords));
+  return match?.value ?? defaultFilterState.communicationSkill;
 }
 
 function getEducationSignalFromPrompt(text: string) {
@@ -208,7 +220,7 @@ export function createInterpretationFromFilters(
     summaryLines: [
       `${filters.country}${filters.city !== "All cities" ? `, ${filters.city}` : " across major cities"}`,
       `${filters.industry} / ${filters.role}`,
-      `${filters.careerStage}`,
+      `${filters.careerStage}, communication requirement: ${filters.communicationSkill}`,
       "Manual filters selected directly by the user",
     ],
   };
@@ -230,6 +242,7 @@ export function interpretProfilePrompt(input: string): ProfileInterpretation {
   const employerPreference = getEmployerPreferenceFromPrompt(normalized);
   const organizerCredibility = getOrganizerCredibilityFromPrompt(normalized, employerPreference);
   const educationSignal = getEducationSignalFromPrompt(normalized);
+  const communicationSkill = getCommunicationSkillFromPrompt(normalized);
 
   return {
     country,
@@ -240,6 +253,7 @@ export function interpretProfilePrompt(input: string): ProfileInterpretation {
     eventType: defaultFilterState.eventType,
     organizerCredibility,
     roiBand: "High ROI",
+    communicationSkill,
     prompt: input.trim(),
     preferredCities,
     employerPreference,
@@ -250,10 +264,10 @@ export function interpretProfilePrompt(input: string): ProfileInterpretation {
         role === "All roles" ? "broad networking roles" : role
       }`,
       `Stage and school signal: ${careerStage}, ${educationSignal}`,
+      `Communication fit: ${communicationSkill}`,
       `Room preference: ${employerPreference}${
         organizerCredibility !== "All credibility levels" ? `, leaning toward ${organizerCredibility}` : ""
       }`,
     ],
   };
 }
-

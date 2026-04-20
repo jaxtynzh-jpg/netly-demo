@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Compass, Sparkles } from "lucide-react";
+import { FakeAuthButton } from "@/components/FakeAuthButton";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -36,13 +37,16 @@ export function Navbar() {
             ))}
           </nav>
 
-          <Link
-            href="/strategy"
-            className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "hidden md:inline-flex")}
-          >
-            <Sparkles className="mr-2 h-4 w-4" />
-            Launch AI Demo
-          </Link>
+          <div className="hidden items-center gap-3 md:flex">
+            <Link
+              href="/strategy"
+              className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "inline-flex")}
+            >
+              <Sparkles className="mr-2 h-4 w-4" />
+              Launch AI Demo
+            </Link>
+            <FakeAuthButton />
+          </div>
         </div>
 
         <div className="flex gap-2 overflow-x-auto pb-4 md:hidden">
@@ -57,6 +61,9 @@ export function Navbar() {
           ))}
           <Link href="/strategy" className={cn(buttonVariants({ size: "sm" }), "shrink-0")}>
             AI Demo
+          </Link>
+          <Link href="/login" className={cn(buttonVariants({ variant: "secondary", size: "sm" }), "shrink-0")}>
+            Login
           </Link>
         </div>
       </div>

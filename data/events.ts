@@ -3,6 +3,7 @@ import type { FilterState, ProfileInterpretation } from "@/data/filters";
 type EventType = "Meetup" | "Info Session" | "Pitch Night" | "Conference" | "Panel";
 type OrganizerType = "Employer" | "University" | "Association" | "Community" | "Startup";
 type CareerStage = "Student" | "Fresh Grad" | "1-3 Years";
+type CommunicationSkillLevel = "Low" | "Moderate" | "High" | "Advanced";
 
 export type Event = {
   id: string;
@@ -23,6 +24,11 @@ export type Event = {
   industry: string[];
   roleRelevance: string[];
   careerStage: CareerStage[];
+  communicationSkill: {
+    level: CommunicationSkillLevel;
+    label: string;
+    description: string;
+  };
   roiScore: 1 | 2 | 3 | 4 | 5;
   tags: string[];
   summary: string;
@@ -46,7 +52,7 @@ export type Event = {
   };
 };
 
-type EventSeed = Omit<Event, "roiBreakdown" | "targets" | "playbook">;
+type EventSeed = Omit<Event, "roiBreakdown" | "targets" | "playbook" | "communicationSkill">;
 
 function makeOrganizer(
   name: string,
@@ -169,6 +175,61 @@ function buildPlaybook(seed: EventSeed): Event["playbook"] {
     referralAsk:
       "If our conversation feels relevant after we chat, would you be open to pointing me toward the best person or team to follow up with?",
     followUp: `Thanks again for the conversation at ${seed.name}. Your advice on how to approach ${industryLabel} networking more strategically gave me a much clearer sense of which next step actually matters. I would love to stay in touch and follow up on the teams or people you mentioned.`,
+  };
+}
+
+function buildCommunicationRequirement(seed: EventSeed): Event["communicationSkill"] {
+  const tagText = seed.tags.join(" ").toLowerCase();
+  let level: CommunicationSkillLevel = "Moderate";
+
+  if (seed.type === "Info Session" || tagText.includes("employer booths") || tagText.includes("broad audience")) {
+    level = "Low";
+  }
+
+  if (seed.type === "Panel" || seed.type === "Conference" || tagText.includes("high alumni density")) {
+    level = "Moderate";
+  }
+
+  if (
+    seed.type === "Meetup" ||
+    tagText.includes("operator-heavy") ||
+    tagText.includes("easy referral") ||
+    tagText.includes("recruiter-visible")
+  ) {
+    level = "High";
+  }
+
+  if (
+    seed.type === "Pitch Night" ||
+    seed.organizer.type === "Startup" ||
+    tagText.includes("founder access") ||
+    tagText.includes("investor-heavy")
+  ) {
+    level = "Advanced";
+  }
+
+  const details: Record<CommunicationSkillLevel, Omit<Event["communicationSkill"], "level">> = {
+    Low: {
+      label: "Low communication load",
+      description: "Structured room with clearer prompts, booths, or presentations. Good for students still building confidence.",
+    },
+    Moderate: {
+      label: "Moderate communication load",
+      description: "Requires basic small talk, Q&A, and a few targeted follow-ups, but the room gives enough structure.",
+    },
+    High: {
+      label: "High communication load",
+      description: "Needs confident openers, active follow-up, and the ability to steer conversations toward referrals.",
+    },
+    Advanced: {
+      label: "Advanced communication load",
+      description: "Unstructured founder or investor-heavy room where outcomes depend on fast trust-building and cold approaches.",
+    },
+  };
+
+  return {
+    level,
+    ...details[level],
   };
 }
 
@@ -1144,6 +1205,7 @@ const eventSeeds: EventSeed[] = [
 export const events: Event[] = eventSeeds
   .map((seed) => ({
     ...seed,
+    communicationSkill: buildCommunicationRequirement(seed),
     roiBreakdown: buildRoiBreakdown(seed),
     targets: buildTargets(seed),
     playbook: buildPlaybook(seed),
@@ -1183,6 +1245,14 @@ function matchesRoiBand(event: Event, value: string) {
   }
 
   return event.roiScore <= 2;
+}
+
+function matchesCommunicationSkill(event: Event, value: string) {
+  if (value === "All communication levels") {
+    return true;
+  }
+
+  return event.communicationSkill.level === value;
 }
 
 function matchesEmployerPreference(event: Event, value: string) {
@@ -1246,6 +1316,10 @@ export function filterEvents(list: Event[], filters: FilterState) {
       return false;
     }
 
+    if (!matchesCommunicationSkill(event, filters.communicationSkill)) {
+      return false;
+    }
+
     return true;
   });
 }
@@ -1289,6 +1363,10 @@ export function scoreEventAgainstProfile(event: Event, profile: ProfileInterpret
     score += 5;
   }
 
+  if (matchesCommunicationSkill(event, profile.communicationSkill)) {
+    score += 4;
+  }
+
   if (event.tags.some((tag) => tag.toLowerCase().includes("social only"))) {
     score -= 8;
   }
@@ -1314,12 +1392,16 @@ export function getRecommendedEvents(profile: ProfileInterpretation, limit = 3) 
       return false;
     }
 
-    if (profile.role !== "All roles" && !event.roleRelevance.includes(profile.role)) {
+	    if (profile.role !== "All roles" && !event.roleRelevance.includes(profile.role)) {
+	      return false;
+	    }
+
+    if (!matchesCommunicationSkill(event, profile.communicationSkill)) {
       return false;
     }
 
-    return true;
-  });
+	    return true;
+	  });
 
   const pool = strictMatches.length >= limit ? strictMatches : events.filter((event) => event.country === profile.country);
 
@@ -1331,4 +1413,3 @@ export function getRecommendedEvents(profile: ProfileInterpretation, limit = 3) 
 export function getEventById(id: string) {
   return events.find((event) => event.id === id);
 }
-

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Building2, Calendar, MapPin, ShieldCheck } from "lucide-react";
+import { ArrowRight, Building2, Calendar, MapPin, MessageCircle, ShieldCheck } from "lucide-react";
 import type { Event } from "@/data/events";
 import { formatEventDate } from "@/lib/utils";
 import { RoiStars } from "@/components/RoiStars";
@@ -90,6 +90,20 @@ export function EventCard({ event, ctaLabel = "View Strategy" }: EventCardProps)
           <div>
             <p className="text-slate-500">Best for</p>
             <p className="mt-1 font-medium text-slate-900">{event.roleRelevance[0]}</p>
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-sky-100 bg-sky-50/80 p-4 text-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-white text-sky-700 shadow-sm">
+              <MessageCircle className="h-4 w-4" />
+            </div>
+            <div>
+              <p className="font-semibold text-slate-950">
+                Communication required: {event.communicationSkill.level}
+              </p>
+              <p className="mt-1 text-sm leading-6 text-slate-600">{event.communicationSkill.description}</p>
+            </div>
           </div>
         </div>
       </CardContent>
